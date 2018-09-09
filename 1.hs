@@ -14,14 +14,18 @@ windowWidth = 640
 windowHeight = 480
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Hello World" windowDimensions (10, 10)
-
 initState = (-170, -20)
-
+stateFile = "1.txt"
 
 -- program
 printDebug value = do
   print value
   hFlush stdout
+
+readState = do
+  fileContent <- readFile stateFile
+  let [x, y] = words fileContent
+  return (read x, read y)
 
 render (x, y) = do
   return
@@ -29,10 +33,7 @@ render (x, y) = do
   $ Scale 0.5 0.5
   $ Text "Hello World"
 
-handle events world = do
-  fileContent <- readFile "1.txt"
-  let [x, y] = words fileContent
-  return (read x, read y)
+handle events world = readState
 
 physics time world = do
   return world
