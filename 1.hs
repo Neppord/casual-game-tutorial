@@ -10,12 +10,11 @@ window = InWindow "Hello World" windowDimensions (10, 10)
 background = white
 fps = 30
 
-picture 
-  = Translate (-170) (-20)
+render (x, y)
+  = Translate x y
   $ Scale 0.5 0.5
   $ Text "Hello World"
 
-render = const picture
 handle = const id
 physics = const id
 
@@ -23,7 +22,7 @@ main = play
   window 
   background
   fps
-  ()
+  (-170, -20)
   render
   handle
   physics
