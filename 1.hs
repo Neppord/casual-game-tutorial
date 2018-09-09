@@ -3,14 +3,16 @@
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 
+-- config
+fps = 30
+background = white
 windowWidth = 640
 windowHeight = 480
+initState = (-170, -20)
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Hello World" windowDimensions (10, 10)
 
-background = white
-fps = 30
-
+-- functions
 render (x, y) = do
   return
   $ Translate (fromIntegral x) (fromIntegral y)
@@ -23,7 +25,6 @@ handle events world = do
 physics time world = do
   return world
 
-initState = (-170, -20)
 main = playIO
   window 
   background
