@@ -15,13 +15,17 @@ picture
   $ Scale 0.5 0.5
   $ Text "Hello World"
 
+render = const picture
+handle = const id
+physics = const id
+
 main = play
   window 
   background
   fps
   ()
-  (const picture)
-  (const id)
-  (const id)
+  render
+  handle
+  physics
 
 
