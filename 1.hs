@@ -14,7 +14,6 @@ windowWidth = 640
 windowHeight = 480
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Hello World" windowDimensions (10, 10)
-initState = (-170, -20)
 stateFile = "1.txt"
 
 -- program
@@ -48,4 +47,6 @@ mainFunction initState = playIO
   handle
   physics
 
-main = mainFunction initState
+main = do
+  state <- readState
+  mainFunction state
