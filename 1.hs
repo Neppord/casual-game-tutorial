@@ -3,14 +3,18 @@
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 
+import System.IO
+
+
 -- config
-fps = 30
+fps = 2
 background = white
 windowWidth = 640
 windowHeight = 480
-initState = (-170, -20)
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Hello World" windowDimensions (10, 10)
+
+initState = (-170, -20)
 
 -- functions
 render (x, y) = do
@@ -20,7 +24,11 @@ render (x, y) = do
   $ Text "Hello World"
 
 handle events world = do
-  return world
+  fileContent <- readFile "1.txt"
+  let [x, y] = words fileContent
+  print world
+  hFlush stdout
+  return (read x, read y)
 
 physics time world = do
   return world
@@ -31,7 +39,7 @@ main = playIO
   fps
   initState
   render
-  handle
   physics
+  handle
 
 
