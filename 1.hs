@@ -1,6 +1,7 @@
 #! /usr/bin/env stack
 -- stack --resolver lts-12.9 script 
 import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
 
 windowWidth = 640
 windowHeight = 480
@@ -10,16 +11,20 @@ window = InWindow "Hello World" windowDimensions (10, 10)
 background = white
 fps = 30
 
-render (x, y)
-  = Translate x y
+render :: (Integer, Integer) -> IO Picture
+render (x, y) = do
+  return
+  $ Translate (fromIntegral x) (fromIntegral y)
   $ Scale 0.5 0.5
   $ Text "Hello World"
 
-handle = const id
-physics = const id
+handle events world = do
+  return world
+physics time world = do
+  return world
 
 initState = (-170, -20)
-main = play
+main = playIO
   window 
   background
   fps
