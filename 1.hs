@@ -1,5 +1,5 @@
 #! /usr/bin/env stack
--- stack --resolver lts-12.9 script
+-- stack --resolver lts-12.9 script --ghc-options "-optl-Wl,-framework,GLUT"
 import Graphics.Gloss
 
 windowWidth = 640
