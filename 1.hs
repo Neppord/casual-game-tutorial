@@ -39,8 +39,8 @@ handle events world = do
 
 physics time world = readState
 
-main = playIO
-  window 
+mainFunction initState = playIO
+  window
   background
   fps
   initState
@@ -48,4 +48,4 @@ main = playIO
   handle
   physics
 
-
+main = mainFunction initState
