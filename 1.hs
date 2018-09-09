@@ -6,12 +6,15 @@ windowWidth = 640
 windowHeight = 480
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Hello World" windowDimensions (10, 10)
+
 background = white
+fps = 30
+
 picture 
   = Translate (-170) (-20)
   $ Scale 0.5 0.5
   $ Text "Hello World"
-fps = 30
+
 main = play
   window 
   background
