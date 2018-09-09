@@ -19,6 +19,10 @@ initState = (-170, -20)
 
 
 -- program
+printDebug value = do
+  print value
+  hFlush stdout
+
 render (x, y) = do
   return
   $ Translate (fromIntegral x) (fromIntegral y)
@@ -28,8 +32,6 @@ render (x, y) = do
 handle events world = do
   fileContent <- readFile "1.txt"
   let [x, y] = words fileContent
-  print world
-  hFlush stdout
   return (read x, read y)
 
 physics time world = do
