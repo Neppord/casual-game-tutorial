@@ -33,10 +33,11 @@ render (x, y) = do
   $ Scale 0.5 0.5
   $ Text "Hello World"
 
-handle events world = readState
 
-physics time world = do
+handle events world = do
   return world
+
+physics time world = readState
 
 main = playIO
   window 
@@ -44,7 +45,7 @@ main = playIO
   fps
   initState
   render
-  physics
   handle
+  physics
 
 
