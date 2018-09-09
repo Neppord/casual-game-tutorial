@@ -1,9 +1,10 @@
 #! /usr/bin/env stack
 -- stack --resolver lts-12.9 script 
-import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Game
 
 import System.IO
+
+import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
 
 
 -- config
@@ -16,7 +17,8 @@ window = InWindow "Hello World" windowDimensions (10, 10)
 
 initState = (-170, -20)
 
--- functions
+
+-- program
 render (x, y) = do
   return
   $ Translate (fromIntegral x) (fromIntegral y)
