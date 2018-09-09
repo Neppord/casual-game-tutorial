@@ -11,5 +11,14 @@ picture
   = Translate (-170) (-20)
   $ Scale 0.5 0.5
   $ Text "Hello World"
-main = display window background picture
+fps = 30
+main = play
+  window 
+  background
+  fps
+  ()
+  (const picture)
+  (const id)
+  (const id)
+
 
