@@ -18,11 +18,12 @@ render (x, y)
 handle = const id
 physics = const id
 
+initState = (-170, -20)
 main = play
   window 
   background
   fps
-  (-170, -20)
+  initState
   render
   handle
   physics
