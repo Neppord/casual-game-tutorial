@@ -20,15 +20,25 @@ printDebug value = do
   print value
   hFlush stdout
 
-render (a, s, d) = do
+render (True, s, d) = do
   return
   $ Pictures [aText, bText, cText]
   where
     aText = Translate (-200) 0 $ Text "A"
     bText = Translate 0 0 $ Text "S"
     cText = Translate 200 0 $ Text "D"
+render (False, s, d) = do
+  return
+  $ Pictures [bText, cText]
+  where
+    bText = Translate 0 0 $ Text "S"
+    cText = Translate 200 0 $ Text "D"
 
-handle events world = do
+handle (EventKey (Char 'a') Down _ _) (_, b, c) = do
+  return (True, b, c)
+handle (EventKey (Char 'a') Up _ _) (_, b, c) = do
+  return (False, b, c)
+handle event world = do
   return world
 
 physics time world = do
