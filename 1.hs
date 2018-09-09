@@ -11,7 +11,6 @@ window = InWindow "Hello World" windowDimensions (10, 10)
 background = white
 fps = 30
 
-render :: (Integer, Integer) -> IO Picture
 render (x, y) = do
   return
   $ Translate (fromIntegral x) (fromIntegral y)
@@ -20,6 +19,7 @@ render (x, y) = do
 
 handle events world = do
   return world
+
 physics time world = do
   return world
 
