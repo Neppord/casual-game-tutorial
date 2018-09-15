@@ -29,17 +29,12 @@ printDebug value = do
   print value
   hFlush stdout
 
-render World{a = True, s, d} = do
+pick bools values = [v | (b, v) <- zip bools values, b]
+render World{a, s, d} = do
   return
-  $ Pictures [aText, bText, cText]
+  $ Pictures $ pick [a, s, d] [aText, bText, cText]
   where
     aText = Translate (-200) 0 $ Text "A"
-    bText = Translate 0 0 $ Text "S"
-    cText = Translate 200 0 $ Text "D"
-render World {a = False, s, d} = do
-  return
-  $ Pictures [bText, cText]
-  where
     bText = Translate 0 0 $ Text "S"
     cText = Translate 200 0 $ Text "D"
 
