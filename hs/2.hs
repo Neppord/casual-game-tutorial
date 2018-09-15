@@ -8,21 +8,25 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Sound.ProteaAudio
 
+
 -- config
 fps = 30
 background = white
+letterDistance = 150
 windowWidth = 640
 windowHeight = 480
+windowPosition = (10, 10)
 windowDimensions = (windowWidth, windowHeight)
-window = InWindow "Trummaskin" windowDimensions (10, 10)
+window = InWindow "Trummaskin" windowDimensions windowPosition
+
 
 -- data
-
 data World = World
   { a :: Bool
   , s :: Bool
   , d :: Bool
   }
+
 
 -- program
 printDebug value = do
@@ -34,9 +38,9 @@ render World{a, s, d} = do
   return
   $ Pictures $ pick [a, s, d] [aText, bText, cText]
   where
-    aText = Translate (-200) 0 $ Text "A"
+    aText = Translate (-letterDistance) 0 $ Text "A"
     bText = Translate 0 0 $ Text "S"
-    cText = Translate 200 0 $ Text "D"
+    cText = Translate letterDistance 0 $ Text "D"
 
 playFile filename = do
   sample <- sampleFromFile filename 1.0
