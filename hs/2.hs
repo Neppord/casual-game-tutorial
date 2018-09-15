@@ -1,6 +1,6 @@
 #! /usr/bin/env stack
 -- stack --resolver lts-12.9 runghc --package proteaaudio --package gloss
-
+{-# LANGUAGE NamedFieldPuns #-}
 import Control.Monad
 import System.IO
 
@@ -16,19 +16,27 @@ windowHeight = 480
 windowDimensions = (windowWidth, windowHeight)
 window = InWindow "Trummaskin" windowDimensions (10, 10)
 
+-- data
+
+data World = World
+  { a :: Bool
+  , s :: Bool
+  , d :: Bool
+  }
+
 -- program
 printDebug value = do
   print value
   hFlush stdout
 
-render (True, s, d) = do
+render World{a = True, s, d} = do
   return
   $ Pictures [aText, bText, cText]
   where
     aText = Translate (-200) 0 $ Text "A"
     bText = Translate 0 0 $ Text "S"
     cText = Translate 200 0 $ Text "D"
-render (False, s, d) = do
+render World {a = False, s, d} = do
   return
   $ Pictures [bText, cText]
   where
@@ -40,12 +48,14 @@ playFile filename = do
   soundPlay sample 1 1 0 1
 
 playSoundA = playFile "a.wav"
+playSoundS = playFile "s.wav"
+playSoundD = playFile "d.wav"
 
-handle (EventKey (Char 'a') Down _ _) (_, b, c) = do
+handle (EventKey (Char 'a') Down _ _) (World {s, d}) = do
   playSoundA
-  return (True, b, c)
-handle (EventKey (Char 'a') Up _ _) (_, b, c) = do
-  return (False, b, c)
+  return World {a = True, s, d}
+handle (EventKey (Char 'a') Up _ _) (World {s, d}) = do
+  return World {a = False, s, d}
 handle _ world = do
   return world
 
@@ -66,7 +76,7 @@ main = do
   print "Initializing audio"
   result <- initAudio 64 44100 1024
   unless result $ fail "failed to initialize audio"
-  mainFunction (False, False, False)
+  mainFunction $ World { a = False, s = False, d = False}
   print "Shutting down audio"
   hFlush stdout
   finishAudio
