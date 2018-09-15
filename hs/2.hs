@@ -51,11 +51,21 @@ playSoundA = playFile "a.wav"
 playSoundS = playFile "s.wav"
 playSoundD = playFile "d.wav"
 
-handle (EventKey (Char 'a') Down _ _) (World {s, d}) = do
+handle (EventKey (Char 'a') Down _ _) world = do
   playSoundA
-  return World {a = True, s, d}
-handle (EventKey (Char 'a') Up _ _) (World {s, d}) = do
-  return World {a = False, s, d}
+  return world {a = True}
+handle (EventKey (Char 'a') Up _ _) world = do
+  return world {a = False}
+handle (EventKey (Char 's') Down _ _) world = do
+  playSoundS
+  return world {s = True}
+handle (EventKey (Char 's') Up _ _) world = do
+  return world {s = False}
+handle (EventKey (Char 'd') Down _ _) world = do
+  playSoundD
+  return world {d = True}
+handle (EventKey (Char 'd') Up _ _) world = do
+  return world {d = False}
 handle _ world = do
   return world
 
