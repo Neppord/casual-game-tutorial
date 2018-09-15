@@ -5,4 +5,6 @@ import Graphics.Gloss
 
 window = InWindow "Utmaning 3" (640, 480) (10, 10)
 
-main = animate window white $ const Blank
+render = const Blank
+
+main = animate window white render
