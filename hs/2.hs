@@ -35,11 +35,11 @@ render (False, s, d) = do
     bText = Translate 0 0 $ Text "S"
     cText = Translate 200 0 $ Text "D"
 
-
-playSoundA = do
-  sample <- sampleFromFile "a.wav" 1.0
+playFile filename = do
+  sample <- sampleFromFile filename 1.0
   soundPlay sample 1 1 0 1
 
+playSoundA = playFile "a.wav"
 
 handle (EventKey (Char 'a') Down _ _) (_, b, c) = do
   playSoundA
