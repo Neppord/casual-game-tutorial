@@ -1,11 +1,12 @@
 #! /usr/bin/env stack
--- stack --resolver lts-12.9 script 
+-- stack --resolver lts-12.9 runghc --package proteaaudio --package gloss
 
+import Control.Monad
 import System.IO
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
-
+import Sound.ProteaAudio
 
 -- config
 fps = 30
@@ -34,12 +35,20 @@ render (False, s, d) = do
     bText = Translate 0 0 $ Text "S"
     cText = Translate 200 0 $ Text "D"
 
+
+playSoundA = do
+  sample <- sampleFromFile "a.wav" 1.0
+  soundPlay sample 1 1 0 1
+
+
 handle (EventKey (Char 'a') Down _ _) (_, b, c) = do
+  playSoundA
   return (True, b, c)
 handle (EventKey (Char 'a') Up _ _) (_, b, c) = do
   return (False, b, c)
-handle event world = do
+handle _ world = do
   return world
+
 
 physics time world = do
   return world
@@ -54,4 +63,10 @@ mainFunction initState = playIO
   physics
 
 main = do
+  print "Initializing audio"
+  result <- initAudio 64 44100 1024
+  unless result $ fail "failed to initialize audio"
   mainFunction (False, False, False)
+  print "Shutting down audio"
+  hFlush stdout
+  finishAudio
