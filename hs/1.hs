@@ -9,14 +9,19 @@ import Graphics.Gloss.Interface.IO.Game
 
 -- config
 fps = 2
-background = white
+text = "Hello World"
+textScale = 0.5
+stateFile = "1.txt"
 windowWidth = 640
 windowHeight = 480
+windowPosition = (10, 10)
 windowDimensions = (windowWidth, windowHeight)
-window = InWindow "Hello World" windowDimensions (10, 10)
-stateFile = "1.txt"
+background = white
+
 
 -- program
+window = InWindow text windowDimensions windowPosition
+
 printDebug value = do
   print value
   hFlush stdout
@@ -29,9 +34,8 @@ readState = do
 render (x, y) = do
   return
   $ Translate (fromIntegral x) (fromIntegral y)
-  $ Scale 0.5 0.5
-  $ Text "Hello World"
-
+  $ Scale textScale
+  $ Text text
 
 handle events world = do
   return world
