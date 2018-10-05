@@ -3,7 +3,12 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 import Prelude hiding ((+))
+
 import System.IO
+import System.Random
+  ( newStdGen
+  , randomR
+  )
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
@@ -56,5 +61,10 @@ mainFunction initState = play
 main = do
   print "hello world!"
   bg <- loadBMP "bg.bmp"
-  -- mainFunction $ State {bg, rainDrop=Drop {pos=(50, 50), mass=5}}
+  g <- newStdGen
+  let halfWidth = fromIntegral windowWidth / 2 :: Float
+  let halfHeight = fromIntegral windowHeight / 2 :: Float
+  let (x, _) = randomR (-halfWidth, halfWidth) g 
+  let y = halfHeight
+  -- mainFunction $ State {bg, rainDrop=Drop {pos=(x, y), mass=5}}
   return ()
