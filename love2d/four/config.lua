@@ -1,9 +1,10 @@
 return {
-    ball={
-    	radius=50,
-        speed=1,
-        color={0,0,255}
-    },
-    background={190, 190, 250},
-    fontHeight=30
+	fontHeight=12,
+	yspdMin=0,
+	yspdMax=3,
+	countdownMin=1,
+	countdownMax=3,
+	dropWidth=1,
+	dropHeight=6,
+	dropColor={0,255,255}
 }
