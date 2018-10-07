@@ -31,14 +31,12 @@ readState = do
   let [x, y] = words fileContent
   return (read x, read y)
 
-render (x, y) = do
-  return
+render (x, y) = return
   $ Translate (fromIntegral x) (fromIntegral y)
   $ Scale textScale textScale
   $ Text displayText
 
-handle events world = do
-  return world
+handle events = return
 
 physics time world = readState
 
