@@ -2,6 +2,7 @@
 -- stack --resolver lts-12.9 script 
 
 import System.IO
+import Control.Monad
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
@@ -31,10 +32,13 @@ readState = do
   let [x, y] = words fileContent
   return (read x, read y)
 
-render (x, y) = return
-  $ Translate (fromIntegral x) (fromIntegral y)
-  $ Scale textScale textScale
-  $ Text displayText
+scaledText =
+  scale textScale textScale textPicture
+  where textPicture = text displayText
+
+at picture (x, y) = translate x y picture
+
+render point = scaledText `at` point
 
 handle events = return
 
@@ -45,7 +49,7 @@ mainFunction initState = playIO
   background
   fps
   initState
-  render
+  (return . render)
   handle
   physics
 
