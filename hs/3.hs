@@ -13,7 +13,7 @@ render sec =
   translate xPos 0 block
   where
     xPos = fromIntegral $
-      ((round scaledTime) `rem` width) - halfWidth
+      (round scaledTime `rem` width) - halfWidth
     scaledTime = sec * 100
     block =
       color blue $

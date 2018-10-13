@@ -2,8 +2,6 @@
 -- stack --resolver lts-12.9 script 
 {-# LANGUAGE NamedFieldPuns #-}
 
-import Prelude hiding ((+))
-
 import System.IO
 import System.Random
   ( newStdGen
