@@ -43,7 +43,9 @@ renderRaindrop Drop {pos=(x, y), mass} =
   $ translate x y
   $ rectangleSolid 2 mass
 
-render State {bg, rainDrop} = Pictures [bg, renderRaindrop rainDrop]
+render State {bg, rainDrop} = 
+  bg <>
+  renderRaindrop rainDrop
 
 handle events = id
 
