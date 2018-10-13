@@ -14,7 +14,9 @@ import Graphics.Gloss.Data.Point.Arithmetic ((+))
 
 -- config
 fps = 2
-windowWidth = 640
+windowWidth :: Num a => a
+windowWidth = 640 
+windowHeight :: Num a => a
 windowHeight = 480
 windowPosition = (10, 10)
 windowDimensions = (windowWidth, windowHeight)
@@ -60,8 +62,8 @@ main = do
   print "hello world!"
   bg <- loadBMP "bg.bmp"
   g <- newStdGen
-  let halfWidth = fromIntegral windowWidth / 2 :: Float
-  let halfHeight = fromIntegral windowHeight / 2 :: Float
+  let halfWidth = windowWidth / 2 :: Float
+  let halfHeight = windowHeight / 2 :: Float
   let (x, _) = randomR (-halfWidth, halfWidth) g 
   let y = halfHeight
   -- mainFunction $ State {bg, rainDrop=Drop {pos=(x, y), mass=5}}
