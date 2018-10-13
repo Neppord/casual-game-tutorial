@@ -12,6 +12,9 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.Point.Arithmetic ((+))
 
+import Four.Data (Drop(..), State(..))
+import Four.Render (render)
+
 -- config
 fps = 2
 windowWidth :: Num a => a
@@ -22,31 +25,8 @@ windowPosition = (10, 10)
 windowDimensions = (windowWidth, windowHeight)
 background = blue
 
--- Data
-
-data Drop = Drop
-  { pos :: Point
-  , mass :: Float
-  }
-
-data State = State
-  { bg :: Picture
-  , rainDrop :: Drop
-  }
-
 -- program
 window = InWindow "rain" windowDimensions windowPosition
-
-renderRaindrop :: Drop -> Picture
-renderRaindrop Drop {pos=(x, y), mass} =
-  color blue
-  $ translate x y
-  $ rectangleSolid 2 mass
-
-render State {bg, rainDrop} = 
-  bg <>
-  renderRaindrop rainDrop
-
 handle events = id
 
 physics time = id
