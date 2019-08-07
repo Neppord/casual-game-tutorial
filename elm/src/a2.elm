@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser
 import Browser.Events as Sub
 import Html exposing (audio, div, text)
-import Html.Attributes exposing (autoplay, preload, src)
+import Html.Attributes exposing (autoplay, preload, src, style)
 import Json.Decode as Decode
 
 
@@ -11,53 +11,120 @@ main =
     Browser.element { init = init, view = view, update = update, subscriptions = subscriptions }
 
 
-subscriptions _ =
-    let
-        decodeKey =
-            Decode.field "key" Decode.string
+decodeKey =
+    Decode.field "key" Decode.string
 
-        keyDown _ =
+
+keyDown letter =
+    case letter of
+        "a" ->
+            ADown
+
+        "s" ->
+            SDown
+
+        "d" ->
             DDown
 
-        keyUp _ =
-            DUp
-    in
+        _ ->
+            DDown
+
+
+keyUp letter =
+    case letter of
+        "a" ->
+            ARelease
+
+        "s" ->
+            SRelease
+
+        "d" ->
+            DRelease
+
+        _ ->
+            DRelease
+
+
+subscriptions _ =
     Sub.batch
-        [ Sub.onKeyDown <| Decode.map keyDown <| decodeKey
-        , Sub.onKeyUp <| Decode.map keyUp <| decodeKey
+        [ Sub.onKeyDown <| Decode.map keyDown decodeKey
+        , Sub.onKeyUp <| Decode.map keyUp decodeKey
         ]
 
 
 init () =
-    ( { d = False }, Cmd.none )
+    ( { a = False, s = False, d = False }, Cmd.none )
 
 
 type Msg
-    = DDown
-    | DUp
+    = ADown
+    | ARelease
+    | SDown
+    | SRelease
+    | DDown
+    | DRelease
 
 
-dview =
-    div []
-        [ audio [ src "d.wav", autoplay True, preload "auto" ] []
-        , text "d"
+styleSpan =
+    div [ style "margin" "50px", style "width" "2em", style "float" "left" ]
+
+
+drumView l =
+    styleSpan
+        [ audio [ src (l ++ ".wav"), autoplay True, preload "auto" ] []
+        , text l
         ]
 
 
-view { d } =
-    div []
-        (if d then
-            [ dview ]
+view { a, s, d } =
+    let
+        empty =
+            [ styleSpan [] ]
 
-         else
-            []
+        avar =
+            if a then
+                [ drumView "a" ]
+
+            else
+                empty
+
+        svar =
+            if s then
+                [ drumView "s" ]
+
+            else
+                empty
+
+        dvar =
+            if d then
+                [ drumView "d" ]
+
+            else
+                empty
+    in
+    div []
+        (avar
+            ++ svar
+            ++ dvar
         )
 
 
 update msg model =
     case msg of
+        ADown ->
+            ( { model | a = True }, Cmd.none )
+
+        ARelease ->
+            ( { model | a = False }, Cmd.none )
+
+        SDown ->
+            ( { model | s = True }, Cmd.none )
+
+        SRelease ->
+            ( { model | s = False }, Cmd.none )
+
         DDown ->
             ( { model | d = True }, Cmd.none )
 
-        DUp ->
+        DRelease ->
             ( { model | d = False }, Cmd.none )

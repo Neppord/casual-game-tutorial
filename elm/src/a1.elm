@@ -4,6 +4,7 @@ import Browser
 import Html exposing (div, input, text)
 import Html.Attributes exposing (placeholder, style)
 import Html.Events exposing (onInput)
+import Maybe exposing (withDefault)
 
 
 main =
@@ -43,17 +44,7 @@ view { x, y } =
 update msg model =
     case msg of
         XChange s ->
-            case String.toInt s of
-                Just x ->
-                    ( { model | x = x }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
+            ( { model | x = withDefault model.x (String.toInt s) }, Cmd.none )
 
         YChange s ->
-            case String.toInt s of
-                Just y ->
-                    ( { model | y = y }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
+            ( { model | y = withDefault model.y (String.toInt s) }, Cmd.none )
