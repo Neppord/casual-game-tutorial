@@ -16,6 +16,10 @@ canvasHeight =
     480
 
 
+speed =
+    10.0
+
+
 main =
     Browser.element { init = init, view = view, update = update, subscriptions = subscriptions }
 
@@ -51,7 +55,7 @@ generateBall r =
             Random.float r (canvasHeight - r)
 
         genD =
-            Random.float -10.0 10.0
+            Random.float (negate speed) speed
 
         ball x y dx dy =
             { x = x, y = y, r = r, dx = dx, dy = dy }
@@ -129,15 +133,15 @@ nextDelta c d =
 withInBall ball x y =
     let
         a =
-            x - ball.x
+            abs (x - ball.x)
 
         b =
-            y - ball.y
+            abs (y - ball.y)
 
         c =
-            ball.r
+            sqrt ((a ^ 2) + (b ^ 2))
     in
-    (a ^ 2) + (b ^ 2) < (c ^ 2)
+    c < ball.r
 
 
 update msg model =
