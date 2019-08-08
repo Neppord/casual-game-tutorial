@@ -2,10 +2,12 @@ module Main exposing (main)
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta, onClick)
+import Html exposing (div, text)
+import Html.Attributes
 import Json.Decode as Decode
 import Random
 import Svg exposing (circle, svg)
-import Svg.Attributes exposing (cx, cy, fill, height, r, style, width)
+import Svg.Attributes exposing (cx, cy, fill, height, r, width)
 
 
 canvasWidth =
@@ -64,29 +66,39 @@ generateBall r =
 
 
 init () =
-    ( { x = 200.0
-      , y = 200.0
-      , r = 200.0
-      , dx = 1.0
-      , dy = 1.0
-      }
+    ( ( 0
+      , { x = 200.0
+        , y = 200.0
+        , r = 200.0
+        , dx = 1.0
+        , dy = 1.0
+        }
+      )
     , Cmd.none
     )
 
 
-view { x, y, r } =
-    svg
-        [ width <| String.fromInt canvasWidth
-        , height <| String.fromInt canvasHeight
-        , style "position: absolute; top: 0; left: 0; background-color: gray;"
+view ( score, { x, y, r } ) =
+    div
+        [ Html.Attributes.style "user-select" "none"
+        , Html.Attributes.style "color" "darkgreen"
+        , Html.Attributes.style "font-size" "21px"
+        , Html.Attributes.style "font-family" "Arial"
         ]
-        [ circle
-            [ fill "red"
-            , cx <| String.fromFloat x
-            , cy <| String.fromFloat y
-            , Svg.Attributes.r <| String.fromFloat r
+        [ text ("Score: " ++ String.fromInt score)
+        , svg
+            [ width <| String.fromInt canvasWidth
+            , height <| String.fromInt canvasHeight
+            , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
             ]
-            []
+            [ circle
+                [ fill "red"
+                , cx <| String.fromFloat x
+                , cy <| String.fromFloat y
+                , Svg.Attributes.r <| String.fromFloat r
+                ]
+                []
+            ]
         ]
 
 
@@ -144,20 +156,22 @@ withInBall ball x y =
     c < ball.r
 
 
-update msg model =
+update msg ( score, ball ) =
     case msg of
         Tick delta ->
-            ( updateBall delta model, Cmd.none )
+            ( ( score, updateBall delta ball ), Cmd.none )
 
         Shot x y ->
-            if withInBall model x y then
-                ( model, Random.generate NewBall <| generateBall (model.r * 0.95) )
+            ( ( score, ball )
+            , if withInBall ball x y then
+                Random.generate NewBall <| generateBall (ball.r * 0.95)
 
-            else
-                ( model, Cmd.none )
+              else
+                Cmd.none
+            )
 
-        NewBall ball ->
-            ( ball, Cmd.none )
+        NewBall newBall ->
+            ( ( score + 1, newBall ), Cmd.none )
 
 
 updateBall delta model =
