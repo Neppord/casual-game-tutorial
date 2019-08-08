@@ -45,13 +45,13 @@ generateBall : Float -> Random.Generator Ball
 generateBall r =
     let
         genX =
-            Random.float r (canvasHeight - r)
-
-        genY =
             Random.float r (canvasWidth - r)
 
+        genY =
+            Random.float r (canvasHeight - r)
+
         genD =
-            Random.float -1.0 1.0
+            Random.float -10.0 10.0
 
         ball x y dx dy =
             { x = x, y = y, r = r, dx = dx, dy = dy }
