@@ -1,9 +1,11 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta)
+import Browser.Events exposing (onAnimationFrameDelta, onClick)
+import Json.Decode as Decode
+import Random
 import Svg exposing (circle, svg)
-import Svg.Attributes exposing (cx, cy, fill, height, r, width)
+import Svg.Attributes exposing (cx, cy, fill, height, r, style, width)
 
 
 canvasWidth =
@@ -19,7 +21,10 @@ main =
 
 
 subscriptions _ =
-    onAnimationFrameDelta Tick
+    Sub.batch
+        [ onAnimationFrameDelta Tick
+        , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
+        ]
 
 
 type alias Milliseconds =
@@ -28,12 +33,36 @@ type alias Milliseconds =
 
 type Msg
     = Tick Milliseconds
+    | Shot Float Float
+    | NewBall Ball
+
+
+type alias Ball =
+    { x : Float, y : Float, r : Float, dx : Float, dy : Float }
+
+
+generateBall : Float -> Random.Generator Ball
+generateBall r =
+    let
+        genX =
+            Random.float r (canvasHeight - r)
+
+        genY =
+            Random.float r (canvasWidth - r)
+
+        genD =
+            Random.float -1.0 1.0
+
+        ball x y dx dy =
+            { x = x, y = y, r = r, dx = dx, dy = dy }
+    in
+    Random.map4 ball genX genY genD genD
 
 
 init () =
-    ( { x = 50.0
-      , y = 50.0
-      , r = 50.0
+    ( { x = 200.0
+      , y = 200.0
+      , r = 200.0
       , dx = 1.0
       , dy = 1.0
       }
@@ -43,7 +72,10 @@ init () =
 
 view { x, y, r } =
     svg
-        [ width <| String.fromInt canvasWidth, height <| String.fromInt canvasHeight ]
+        [ width <| String.fromInt canvasWidth
+        , height <| String.fromInt canvasHeight
+        , style "position: absolute; top: 0; left: 0; background-color: gray;"
+        ]
         [ circle
             [ fill "red"
             , cx <| String.fromFloat x
@@ -79,41 +111,67 @@ vCollision { y, r } =
 
 
 projectModel delta ({ x, dx, y, dy } as model) =
-    { model | x = x + delta * dx, y = y + delta * dy }
+    { model | x = x + delta * 0.1 * dx, y = y + delta * 0.1 * dy }
 
 
 nextDelta c d =
     case c of
         LT ->
-            1.0
+            abs d
 
         GT ->
-            -1.0
+            negate <| abs d
 
         EQ ->
             d
 
 
+withInBall ball x y =
+    let
+        a =
+            x - ball.x
+
+        b =
+            y - ball.y
+
+        c =
+            ball.r
+    in
+    (a ^ 2) + (b ^ 2) < (c ^ 2)
+
+
 update msg model =
     case msg of
         Tick delta ->
-            let
-                project =
-                    projectModel delta
+            ( updateBall delta model, Cmd.none )
 
-                projectedModel =
-                    project model
+        Shot x y ->
+            if withInBall model x y then
+                ( model, Random.generate NewBall <| generateBall (model.r * 0.95) )
 
-                hc =
-                    hCollision projectedModel
+            else
+                ( model, Cmd.none )
 
-                vc =
-                    vCollision projectedModel
-            in
-            ( project
-                { model
-                    | dx = nextDelta hc model.dx
-                    , dy = nextDelta vc model.dy
-                }
-            , Cmd.none
-            )
+        NewBall ball ->
+            ( ball, Cmd.none )
+
+
+updateBall delta model =
+    let
+        project =
+            projectModel delta
+
+        projectedModel =
+            project model
+
+        hc =
+            hCollision projectedModel
+
+        vc =
+            vCollision projectedModel
+    in
+    project
+        { model
+            | dx = nextDelta hc model.dx
+            , dy = nextDelta vc model.dy
+        }
