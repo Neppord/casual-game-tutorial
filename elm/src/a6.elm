@@ -7,6 +7,8 @@ import Html.Attributes
 import Json.Decode as Decode
 import Svg exposing (g, image, svg)
 import Svg.Attributes
+import TypedSvg.Attributes exposing (height, width)
+import TypedSvg.Types exposing (px)
 
 
 
@@ -31,8 +33,8 @@ view model =
                 radiusS =
                     String.fromFloat r
 
-                diameterS =
-                    String.fromFloat (r * 2)
+                diameter =
+                    r * 2
 
                 rotationS =
                     String.fromFloat x
@@ -44,8 +46,8 @@ view model =
                 , Html.Attributes.style "font-family" "Arial"
                 ]
                 [ svg
-                    [ Svg.Attributes.width <| String.fromInt canvasWidth
-                    , Svg.Attributes.height <| String.fromInt canvasHeight
+                    [ width <| px canvasWidth
+                    , height <| px canvasHeight
                     , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
                     ]
                     [ g
@@ -59,8 +61,8 @@ view model =
                         ]
                         [ image
                             [ Svg.Attributes.xlinkHref "ball.png"
-                            , Svg.Attributes.width <| diameterS
-                            , Svg.Attributes.height <| diameterS
+                            , width <| px diameter
+                            , height <| px diameter
                             , Svg.Attributes.transform ("rotate(" ++ rotationS ++ ", " ++ radiusS ++ ", " ++ radiusS ++ ")")
                             ]
                             []
@@ -112,28 +114,28 @@ stopCondition y dy =
     abs (y + ballRadius - canvasHeight) < 1 && dy < 0.01
 
 
-updateBall delta model =
+updateBall delta ball =
     let
         project =
-            projectModel delta
+            projectBall delta
 
-        projectedModel =
-            project model
+        projectedball =
+            project ball
 
         hc =
-            hCollision projectedModel
+            hCollision projectedball
 
         vc =
-            vCollision projectedModel
+            vCollision projectedball
     in
     project
-        { model
-            | dx = nextDelta hc model.dx
-            , dy = nextDelta vc model.dy + gravitation
+        { ball
+            | dx = nextDelta hc ball.dx
+            , dy = nextDelta vc ball.dy + gravitation
         }
 
 
-projectModel delta ({ x, dx, y, dy } as model) =
+projectBall delta ({ x, dx, y, dy } as model) =
     { model | x = x + delta * dx, y = y + delta * dy }
 
 
