@@ -70,7 +70,7 @@ update msg model =
             ( SimScreen
                 { x = 200.0
                 , y = 200.0
-                , r = 200.0
+                , r = 50.0
                 , dx = 1.0
                 , dy = 1.0
                 }
@@ -79,18 +79,6 @@ update msg model =
 
         ( SimScreen ball, Tick delta ) ->
             ( SimScreen (updateBall delta ball), Cmd.none )
-
-        ( SimScreen ball, Shot x y ) ->
-            ( SimScreen ball
-            , if withinBall ( x, y ) ball then
-                Random.generate NewBall <| generateBall (ball.r * 0.95)
-
-              else
-                Cmd.none
-            )
-
-        ( SimScreen _, NewBall newBall ) ->
-            ( SimScreen newBall, Cmd.none )
 
         ( SimScreen _, StartSimulation ) ->
             ( StartScreen, Cmd.none )
@@ -105,10 +93,7 @@ subscriptions model =
             onKeyDown <| Decode.map keyDown decodeKey
 
         SimScreen _ ->
-            Sub.batch
-                [ onAnimationFrameDelta Tick
-                , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
-                ]
+            onAnimationFrameDelta Tick
 
 
 
@@ -190,20 +175,6 @@ nextDelta c d =
             d
 
 
-withinBall ( x, y ) ball =
-    let
-        a =
-            abs (x - ball.x)
-
-        b =
-            abs (y - ball.y)
-
-        c =
-            sqrt ((a ^ 2) + (b ^ 2))
-    in
-    c < ball.r
-
-
 
 -- subscription helper functions
 
@@ -232,8 +203,6 @@ type Model
 
 type Msg
     = Tick Milliseconds
-    | Shot Float Float
-    | NewBall Ball
     | StartSimulation
     | Nop
 
