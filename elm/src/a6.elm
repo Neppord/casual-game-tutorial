@@ -1,11 +1,10 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta, onClick, onKeyDown)
+import Browser.Events exposing (onAnimationFrameDelta, onKeyDown)
 import Html exposing (div, text)
 import Html.Attributes
 import Json.Decode as Decode
-import Random
 import Svg exposing (g, image, svg)
 import Svg.Attributes
 
