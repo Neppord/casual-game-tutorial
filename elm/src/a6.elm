@@ -88,9 +88,6 @@ update msg model =
             , Cmd.none
             )
 
-        ( SimScreen _, StartSimulation ) ->
-            ( StartScreen, Cmd.none )
-
         _ ->
             ( model, Cmd.none )
 
@@ -110,10 +107,6 @@ subscriptions model =
 
 stopCondition y dy =
     abs (y + ballRadius - canvasHeight) < 1 && dy < 0.01
-
-
-
--- && dy < 1
 
 
 updateBall delta model =
@@ -202,7 +195,6 @@ type Model
 type Msg
     = Tick Milliseconds
     | StartSimulation
-    | StopSimulation
     | Nop
 
 
