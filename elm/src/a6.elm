@@ -69,15 +69,21 @@ update msg model =
             ( SimScreen
                 { x = 200.0
                 , y = 200.0
-                , r = 50.0
-                , dx = 1.0
-                , dy = 1.0
+                , r = ballRadius
+                , dx = -0.1
+                , dy = 0.1
                 }
             , Cmd.none
             )
 
-        ( SimScreen ball, Tick delta ) ->
-            ( SimScreen (updateBall delta ball), Cmd.none )
+        ( SimScreen ({ y, dy } as ball), Tick delta ) ->
+            ( if stopCondition y dy then
+                StartScreen
+
+              else
+                SimScreen (updateBall delta ball)
+            , Cmd.none
+            )
 
         ( SimScreen _, StartSimulation ) ->
             ( StartScreen, Cmd.none )
@@ -97,6 +103,14 @@ subscriptions model =
 
 
 -- update helper functions
+
+
+stopCondition y dy =
+    abs (y + ballRadius - canvasHeight) < 1 && dy < 0.01
+
+
+
+-- && dy < 1
 
 
 updateBall delta model =
@@ -121,7 +135,7 @@ updateBall delta model =
 
 
 projectModel delta ({ x, dx, y, dy } as model) =
-    { model | x = x + delta * 0.1 * dx, y = y + delta * 0.1 * dy }
+    { model | x = x + delta * dx, y = y + delta * dy }
 
 
 hCollision { x, r } =
@@ -185,6 +199,7 @@ type Model
 type Msg
     = Tick Milliseconds
     | StartSimulation
+    | StopSimulation
     | Nop
 
 
@@ -217,4 +232,8 @@ speed =
 
 
 gravitation =
-    0.2
+    0.1
+
+
+ballRadius =
+    50.0
