@@ -36,7 +36,7 @@ keyDown letter =
             SwitchScreen
 
         _ ->
-            Tick 0.0
+            Nop
 
 
 subscriptions model =
@@ -56,6 +56,7 @@ type Msg
     | Shot Float Float
     | NewBall Ball
     | SwitchScreen
+    | Nop
 
 
 type alias Score =
@@ -191,44 +192,40 @@ withinBall ( x, y ) ball =
 
 
 update msg model =
-    case model of
-        StartScreen ->
-            case msg of
-                SwitchScreen ->
-                    ( SimScreen
-                        ( 0
-                        , { x = 200.0
-                          , y = 200.0
-                          , r = 200.0
-                          , dx = 1.0
-                          , dy = 1.0
-                          }
-                        )
-                    , Cmd.none
-                    )
+    case ( model, msg ) of
+        ( StartScreen, SwitchScreen ) ->
+            ( SimScreen
+                ( 0
+                , { x = 200.0
+                  , y = 200.0
+                  , r = 200.0
+                  , dx = 1.0
+                  , dy = 1.0
+                  }
+                )
+            , Cmd.none
+            )
 
-                _ ->
-                    ( model, Cmd.none )
+        ( SimScreen ( score, ball ), Tick delta ) ->
+            ( SimScreen ( score, updateBall delta ball ), Cmd.none )
 
-        SimScreen ( score, ball ) ->
-            case msg of
-                Tick delta ->
-                    ( SimScreen ( score, updateBall delta ball ), Cmd.none )
+        ( SimScreen ( score, ball ), Shot x y ) ->
+            ( SimScreen ( score, ball )
+            , if withinBall ( x, y ) ball then
+                Random.generate NewBall <| generateBall (ball.r * 0.95)
 
-                Shot x y ->
-                    ( SimScreen ( score, ball )
-                    , if withinBall ( x, y ) ball then
-                        Random.generate NewBall <| generateBall (ball.r * 0.95)
+              else
+                Cmd.none
+            )
 
-                      else
-                        Cmd.none
-                    )
+        ( SimScreen ( score, _ ), NewBall newBall ) ->
+            ( SimScreen ( score + 1, newBall ), Cmd.none )
 
-                NewBall newBall ->
-                    ( SimScreen ( score + 1, newBall ), Cmd.none )
+        ( SimScreen _, SwitchScreen ) ->
+            ( StartScreen, Cmd.none )
 
-                SwitchScreen ->
-                    ( StartScreen, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
 
 
 updateBall delta model =
