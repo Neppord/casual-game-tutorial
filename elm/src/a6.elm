@@ -24,14 +24,17 @@ init () =
 view model =
     case model of
         StartScreen ->
-            text "PRESS S TO START"
+            text "PRESS S TO SIMULATE"
 
         SimScreen { x, y, r } ->
             let
-                raddie =
+                radiusS =
                     String.fromFloat r
 
-                rotation =
+                diameterS =
+                    String.fromFloat (r * 2)
+
+                rotationS =
                     String.fromFloat x
             in
             div
@@ -56,9 +59,9 @@ view model =
                         ]
                         [ image
                             [ Svg.Attributes.xlinkHref "ball.png"
-                            , Svg.Attributes.width <| String.fromFloat (r * 2)
-                            , Svg.Attributes.height <| String.fromFloat (r * 2)
-                            , Svg.Attributes.transform ("rotate(" ++ rotation ++ ", " ++ raddie ++ ", " ++ raddie ++ ")")
+                            , Svg.Attributes.width <| diameterS
+                            , Svg.Attributes.height <| diameterS
+                            , Svg.Attributes.transform ("rotate(" ++ rotationS ++ ", " ++ radiusS ++ ", " ++ radiusS ++ ")")
                             ]
                             []
                         ]
