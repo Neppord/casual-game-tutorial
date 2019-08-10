@@ -125,24 +125,6 @@ projectModel delta ({ x, dx, y, dy } as model) =
     { model | x = x + delta * 0.1 * dx, y = y + delta * 0.1 * dy }
 
 
-generateBall : Float -> Random.Generator Ball
-generateBall r =
-    let
-        genX =
-            Random.float r (canvasWidth - r)
-
-        genY =
-            Random.float r (canvasHeight - r)
-
-        genD =
-            Random.float (negate speed) speed
-
-        ball x y dx dy =
-            { x = x, y = y, r = r, dx = dx, dy = dy }
-    in
-    Random.map4 ball genX genY genD genD
-
-
 hCollision { x, r } =
     rangeCompare { start = r, stop = canvasWidth - r } x
 
