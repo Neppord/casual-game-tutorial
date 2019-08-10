@@ -40,11 +40,15 @@ keyDown letter =
 
 
 subscriptions model =
-    Sub.batch
-        [ onAnimationFrameDelta Tick
-        , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
-        , onKeyDown <| Decode.map keyDown decodeKey
-        ]
+    case model of
+        StartScreen ->
+            onKeyDown <| Decode.map keyDown decodeKey
+
+        SimScreen _ ->
+            Sub.batch
+                [ onAnimationFrameDelta Tick
+                , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
+                ]
 
 
 type alias Milliseconds =
@@ -97,7 +101,7 @@ init () =
 view model =
     case model of
         StartScreen ->
-            text "PRESS S TO START/STOP"
+            text "PRESS S TO START"
 
         SimScreen ( score, { x, y, r } ) ->
             let
