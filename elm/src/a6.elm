@@ -30,6 +30,9 @@ view model =
             let
                 raddie =
                     String.fromFloat r
+
+                rotation =
+                    String.fromFloat x
             in
             div
                 [ Html.Attributes.style "user-select" "none"
@@ -55,7 +58,7 @@ view model =
                             [ Svg.Attributes.xlinkHref "ball.png"
                             , Svg.Attributes.width <| String.fromFloat (r * 2)
                             , Svg.Attributes.height <| String.fromFloat (r * 2)
-                            , Svg.Attributes.transform ("rotate(180, " ++ raddie ++ ", " ++ raddie ++ ")")
+                            , Svg.Attributes.transform ("rotate(" ++ rotation ++ ", " ++ raddie ++ ", " ++ raddie ++ ")")
                             ]
                             []
                         ]
