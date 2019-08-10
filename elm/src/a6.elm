@@ -10,84 +10,12 @@ import Svg exposing (g, image, svg)
 import Svg.Attributes
 
 
-canvasWidth =
-    640
 
-
-canvasHeight =
-    480
-
-
-speed =
-    10.0
+-- top level functions
 
 
 main =
     Browser.element { init = init, view = view, update = update, subscriptions = subscriptions }
-
-
-decodeKey =
-    Decode.field "key" Decode.string
-
-
-keyDown letter =
-    case letter of
-        "s" ->
-            StartSimulation
-
-        _ ->
-            Nop
-
-
-subscriptions model =
-    case model of
-        StartScreen ->
-            onKeyDown <| Decode.map keyDown decodeKey
-
-        SimScreen _ ->
-            Sub.batch
-                [ onAnimationFrameDelta Tick
-                , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
-                ]
-
-
-type alias Milliseconds =
-    Float
-
-
-type Msg
-    = Tick Milliseconds
-    | Shot Float Float
-    | NewBall Ball
-    | StartSimulation
-    | Nop
-
-
-type alias Ball =
-    { x : Float, y : Float, r : Float, dx : Float, dy : Float }
-
-
-type Model
-    = StartScreen
-    | SimScreen Ball
-
-
-generateBall : Float -> Random.Generator Ball
-generateBall r =
-    let
-        genX =
-            Random.float r (canvasWidth - r)
-
-        genY =
-            Random.float r (canvasHeight - r)
-
-        genD =
-            Random.float (negate speed) speed
-
-        ball x y dx dy =
-            { x = x, y = y, r = r, dx = dx, dy = dy }
-    in
-    Random.map4 ball genX genY genD genD
 
 
 init () =
@@ -136,60 +64,6 @@ view model =
                 ]
 
 
-type alias Collision =
-    ( Order, Order )
-
-
-rangeEqual { start, stop } value =
-    case ( compare value start, compare value stop ) of
-        ( LT, _ ) ->
-            LT
-
-        ( _, GT ) ->
-            GT
-
-        ( _, _ ) ->
-            EQ
-
-
-hCollision { x, r } =
-    rangeEqual { start = r, stop = canvasWidth - r } x
-
-
-vCollision { y, r } =
-    rangeEqual { start = r, stop = canvasHeight - r } y
-
-
-projectModel delta ({ x, dx, y, dy } as model) =
-    { model | x = x + delta * 0.1 * dx, y = y + delta * 0.1 * dy }
-
-
-nextDelta c d =
-    case c of
-        LT ->
-            abs d
-
-        GT ->
-            negate <| abs d
-
-        EQ ->
-            d
-
-
-withinBall ( x, y ) ball =
-    let
-        a =
-            abs (x - ball.x)
-
-        b =
-            abs (y - ball.y)
-
-        c =
-            sqrt ((a ^ 2) + (b ^ 2))
-    in
-    c < ball.r
-
-
 update msg model =
     case ( model, msg ) of
         ( StartScreen, StartSimulation ) ->
@@ -225,6 +99,22 @@ update msg model =
             ( model, Cmd.none )
 
 
+subscriptions model =
+    case model of
+        StartScreen ->
+            onKeyDown <| Decode.map keyDown decodeKey
+
+        SimScreen _ ->
+            Sub.batch
+                [ onAnimationFrameDelta Tick
+                , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
+                ]
+
+
+
+-- update helper functions
+
+
 updateBall delta model =
     let
         project =
@@ -244,3 +134,133 @@ updateBall delta model =
             | dx = nextDelta hc model.dx
             , dy = nextDelta vc model.dy
         }
+
+
+projectModel delta ({ x, dx, y, dy } as model) =
+    { model | x = x + delta * 0.1 * dx, y = y + delta * 0.1 * dy }
+
+
+generateBall : Float -> Random.Generator Ball
+generateBall r =
+    let
+        genX =
+            Random.float r (canvasWidth - r)
+
+        genY =
+            Random.float r (canvasHeight - r)
+
+        genD =
+            Random.float (negate speed) speed
+
+        ball x y dx dy =
+            { x = x, y = y, r = r, dx = dx, dy = dy }
+    in
+    Random.map4 ball genX genY genD genD
+
+
+hCollision { x, r } =
+    rangeCompare { start = r, stop = canvasWidth - r } x
+
+
+vCollision { y, r } =
+    rangeCompare { start = r, stop = canvasHeight - r } y
+
+
+rangeCompare { start, stop } value =
+    case ( compare value start, compare value stop ) of
+        ( LT, _ ) ->
+            LT
+
+        ( _, GT ) ->
+            GT
+
+        ( _, _ ) ->
+            EQ
+
+
+nextDelta c d =
+    case c of
+        LT ->
+            abs d
+
+        GT ->
+            negate <| abs d
+
+        EQ ->
+            d
+
+
+withinBall ( x, y ) ball =
+    let
+        a =
+            abs (x - ball.x)
+
+        b =
+            abs (y - ball.y)
+
+        c =
+            sqrt ((a ^ 2) + (b ^ 2))
+    in
+    c < ball.r
+
+
+
+-- subscription helper functions
+
+
+decodeKey =
+    Decode.field "key" Decode.string
+
+
+keyDown letter =
+    case letter of
+        "s" ->
+            StartSimulation
+
+        _ ->
+            Nop
+
+
+
+-- types
+
+
+type Model
+    = StartScreen
+    | SimScreen Ball
+
+
+type Msg
+    = Tick Milliseconds
+    | Shot Float Float
+    | NewBall Ball
+    | StartSimulation
+    | Nop
+
+
+type alias Ball =
+    { x : Float, y : Float, r : Float, dx : Float, dy : Float }
+
+
+type alias Collision =
+    ( Order, Order )
+
+
+type alias Milliseconds =
+    Float
+
+
+
+-- constants
+
+
+canvasWidth =
+    640
+
+
+canvasHeight =
+    480
+
+
+speed =
+    10.0
