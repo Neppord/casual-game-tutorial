@@ -116,7 +116,7 @@ updateBall delta model =
     project
         { model
             | dx = nextDelta hc model.dx
-            , dy = nextDelta vc model.dy
+            , dy = nextDelta vc model.dy + gravitation
         }
 
 
@@ -214,3 +214,7 @@ canvasHeight =
 
 speed =
     10.0
+
+
+gravitation =
+    0.2
