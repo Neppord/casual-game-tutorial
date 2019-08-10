@@ -33,7 +33,7 @@ decodeKey =
 keyDown letter =
     case letter of
         "s" ->
-            SwitchScreen
+            StartSimulation
 
         _ ->
             Nop
@@ -59,12 +59,8 @@ type Msg
     = Tick Milliseconds
     | Shot Float Float
     | NewBall Ball
-    | SwitchScreen
+    | StartSimulation
     | Nop
-
-
-type alias Score =
-    Int
 
 
 type alias Ball =
@@ -73,7 +69,7 @@ type alias Ball =
 
 type Model
     = StartScreen
-    | SimScreen ( Score, Ball )
+    | SimScreen Ball
 
 
 generateBall : Float -> Random.Generator Ball
@@ -103,7 +99,7 @@ view model =
         StartScreen ->
             text "PRESS S TO START"
 
-        SimScreen ( score, { x, y, r } ) ->
+        SimScreen { x, y, r } ->
             let
                 raddie =
                     String.fromFloat r
@@ -114,8 +110,7 @@ view model =
                 , Html.Attributes.style "font-size" "21px"
                 , Html.Attributes.style "font-family" "Arial"
                 ]
-                [ text ("Score: " ++ String.fromInt score)
-                , svg
+                [ svg
                     [ Svg.Attributes.width <| String.fromInt canvasWidth
                     , Svg.Attributes.height <| String.fromInt canvasHeight
                     , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
@@ -197,24 +192,22 @@ withinBall ( x, y ) ball =
 
 update msg model =
     case ( model, msg ) of
-        ( StartScreen, SwitchScreen ) ->
+        ( StartScreen, StartSimulation ) ->
             ( SimScreen
-                ( 0
-                , { x = 200.0
-                  , y = 200.0
-                  , r = 200.0
-                  , dx = 1.0
-                  , dy = 1.0
-                  }
-                )
+                { x = 200.0
+                , y = 200.0
+                , r = 200.0
+                , dx = 1.0
+                , dy = 1.0
+                }
             , Cmd.none
             )
 
-        ( SimScreen ( score, ball ), Tick delta ) ->
-            ( SimScreen ( score, updateBall delta ball ), Cmd.none )
+        ( SimScreen ball, Tick delta ) ->
+            ( SimScreen (updateBall delta ball), Cmd.none )
 
-        ( SimScreen ( score, ball ), Shot x y ) ->
-            ( SimScreen ( score, ball )
+        ( SimScreen ball, Shot x y ) ->
+            ( SimScreen ball
             , if withinBall ( x, y ) ball then
                 Random.generate NewBall <| generateBall (ball.r * 0.95)
 
@@ -222,10 +215,10 @@ update msg model =
                 Cmd.none
             )
 
-        ( SimScreen ( score, _ ), NewBall newBall ) ->
-            ( SimScreen ( score + 1, newBall ), Cmd.none )
+        ( SimScreen _, NewBall newBall ) ->
+            ( SimScreen newBall, Cmd.none )
 
-        ( SimScreen _, SwitchScreen ) ->
+        ( SimScreen _, StartSimulation ) ->
             ( StartScreen, Cmd.none )
 
         _ ->
