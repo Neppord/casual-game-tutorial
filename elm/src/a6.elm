@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta, onClick)
+import Browser.Events exposing (onAnimationFrameDelta, onClick, onKeyDown)
 import Html exposing (div, text)
 import Html.Attributes
 import Json.Decode as Decode
@@ -26,10 +26,24 @@ main =
     Browser.element { init = init, view = view, update = update, subscriptions = subscriptions }
 
 
-subscriptions _ =
+decodeKey =
+    Decode.field "key" Decode.string
+
+
+keyDown letter =
+    case letter of
+        "s" ->
+            SwitchScreen
+
+        _ ->
+            Tick 0.0
+
+
+subscriptions model =
     Sub.batch
         [ onAnimationFrameDelta Tick
         , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
+        , onKeyDown <| Decode.map keyDown decodeKey
         ]
 
 
@@ -41,10 +55,20 @@ type Msg
     = Tick Milliseconds
     | Shot Float Float
     | NewBall Ball
+    | SwitchScreen
+
+
+type alias Score =
+    Int
 
 
 type alias Ball =
     { x : Float, y : Float, r : Float, dx : Float, dy : Float }
+
+
+type Model
+    = StartScreen
+    | SimScreen ( Score, Ball )
 
 
 generateBall : Float -> Random.Generator Ball
@@ -66,54 +90,50 @@ generateBall r =
 
 
 init () =
-    ( ( 0
-      , { x = 200.0
-        , y = 200.0
-        , r = 200.0
-        , dx = 1.0
-        , dy = 1.0
-        }
-      )
-    , Cmd.none
-    )
+    ( StartScreen, Cmd.none )
 
 
-view ( score, { x, y, r } ) =
-    let
-        raddie =
-            String.fromFloat r
-    in
-    div
-        [ Html.Attributes.style "user-select" "none"
-        , Html.Attributes.style "color" "darkgreen"
-        , Html.Attributes.style "font-size" "21px"
-        , Html.Attributes.style "font-family" "Arial"
-        ]
-        [ text ("Score: " ++ String.fromInt score)
-        , svg
-            [ Svg.Attributes.width <| String.fromInt canvasWidth
-            , Svg.Attributes.height <| String.fromInt canvasHeight
-            , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
-            ]
-            [ g
-                [ Svg.Attributes.transform
-                    ("translate("
-                        ++ String.fromFloat (x - r)
-                        ++ ","
-                        ++ String.fromFloat (y - r)
-                        ++ ")"
-                    )
+view model =
+    case model of
+        StartScreen ->
+            text "PRESS S TO START/STOP"
+
+        SimScreen ( score, { x, y, r } ) ->
+            let
+                raddie =
+                    String.fromFloat r
+            in
+            div
+                [ Html.Attributes.style "user-select" "none"
+                , Html.Attributes.style "color" "darkgreen"
+                , Html.Attributes.style "font-size" "21px"
+                , Html.Attributes.style "font-family" "Arial"
                 ]
-                [ image
-                    [ Svg.Attributes.xlinkHref "ball.png"
-                    , Svg.Attributes.width <| String.fromFloat (r * 2)
-                    , Svg.Attributes.height <| String.fromFloat (r * 2)
-                    , Svg.Attributes.transform ("rotate(180, " ++ raddie ++ ", " ++ raddie ++ ")")
+                [ text ("Score: " ++ String.fromInt score)
+                , svg
+                    [ Svg.Attributes.width <| String.fromInt canvasWidth
+                    , Svg.Attributes.height <| String.fromInt canvasHeight
+                    , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
                     ]
-                    []
+                    [ g
+                        [ Svg.Attributes.transform
+                            ("translate("
+                                ++ String.fromFloat (x - r)
+                                ++ ","
+                                ++ String.fromFloat (y - r)
+                                ++ ")"
+                            )
+                        ]
+                        [ image
+                            [ Svg.Attributes.xlinkHref "ball.png"
+                            , Svg.Attributes.width <| String.fromFloat (r * 2)
+                            , Svg.Attributes.height <| String.fromFloat (r * 2)
+                            , Svg.Attributes.transform ("rotate(180, " ++ raddie ++ ", " ++ raddie ++ ")")
+                            ]
+                            []
+                        ]
+                    ]
                 ]
-            ]
-        ]
 
 
 type alias Collision =
@@ -156,7 +176,7 @@ nextDelta c d =
             d
 
 
-withInBall ball x y =
+withinBall ( x, y ) ball =
     let
         a =
             abs (x - ball.x)
@@ -170,22 +190,45 @@ withInBall ball x y =
     c < ball.r
 
 
-update msg ( score, ball ) =
-    case msg of
-        Tick delta ->
-            ( ( score, updateBall delta ball ), Cmd.none )
+update msg model =
+    case model of
+        StartScreen ->
+            case msg of
+                SwitchScreen ->
+                    ( SimScreen
+                        ( 0
+                        , { x = 200.0
+                          , y = 200.0
+                          , r = 200.0
+                          , dx = 1.0
+                          , dy = 1.0
+                          }
+                        )
+                    , Cmd.none
+                    )
 
-        Shot x y ->
-            ( ( score, ball )
-            , if withInBall ball x y then
-                Random.generate NewBall <| generateBall (ball.r * 0.95)
+                _ ->
+                    ( model, Cmd.none )
 
-              else
-                Cmd.none
-            )
+        SimScreen ( score, ball ) ->
+            case msg of
+                Tick delta ->
+                    ( SimScreen ( score, updateBall delta ball ), Cmd.none )
 
-        NewBall newBall ->
-            ( ( score + 1, newBall ), Cmd.none )
+                Shot x y ->
+                    ( SimScreen ( score, ball )
+                    , if withinBall ( x, y ) ball then
+                        Random.generate NewBall <| generateBall (ball.r * 0.95)
+
+                      else
+                        Cmd.none
+                    )
+
+                NewBall newBall ->
+                    ( SimScreen ( score + 1, newBall ), Cmd.none )
+
+                SwitchScreen ->
+                    ( StartScreen, Cmd.none )
 
 
 updateBall delta model =
