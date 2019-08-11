@@ -51,13 +51,8 @@ view model =
                     , Svg.Attributes.style "position: absolute; top: 0; left: 0; background-color: lightblue; z-index: -1"
                     ]
                     [ g
-                        [ Svg.Attributes.transform
-                            ("translate("
-                                ++ String.fromFloat (x - r)
-                                ++ ","
-                                ++ String.fromFloat (y - r)
-                                ++ ")"
-                            )
+                        [ TypedSvg.Attributes.transform
+                            [ TypedSvg.Types.Translate (x - r) (y - r) ]
                         ]
                         [ image
                             [ Svg.Attributes.xlinkHref "ball.png"
