@@ -207,10 +207,6 @@ type alias Ball =
     { x : Float, y : Float, r : Float, dx : Float, dy : Float }
 
 
-type alias Collision =
-    ( Order, Order )
-
-
 type alias Milliseconds =
     Float
 
@@ -225,10 +221,6 @@ canvasWidth =
 
 canvasHeight =
     480
-
-
-speed =
-    10.0
 
 
 gravitation =
