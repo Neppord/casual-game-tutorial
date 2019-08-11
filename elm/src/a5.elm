@@ -26,10 +26,10 @@ main =
     Browser.element { init = init, view = view, update = update, subscriptions = subscriptions }
 
 
-subscriptions _ =
+subscriptions ( _, ball ) =
     Sub.batch
         [ onAnimationFrameDelta Tick
-        , onClick (Decode.map2 Shot (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
+        , onClick (Decode.map2 (Shot ball) (Decode.field "x" Decode.float) (Decode.field "y" Decode.float))
         ]
 
 
@@ -39,7 +39,7 @@ type alias Milliseconds =
 
 type Msg
     = Tick Milliseconds
-    | Shot Float Float
+    | Shot Ball Float Float
     | NewBall Ball
 
 
@@ -161,9 +161,9 @@ update msg ( score, ball ) =
         Tick delta ->
             ( ( score, updateBall delta ball ), Cmd.none )
 
-        Shot x y ->
+        Shot shotBall x y ->
             ( ( score, ball )
-            , if withInBall ball x y then
+            , if withInBall shotBall x y then
                 Random.generate NewBall <| generateBall (ball.r * 0.95)
 
               else
